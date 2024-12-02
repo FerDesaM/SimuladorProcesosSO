@@ -1,55 +1,72 @@
 from proceso import Proceso
 
-class PlanificadorSJF:
-    def __init__(self):
-        self.procesos = []
-        self.tiempo_actual = 0
-        self.proceso_actual = None
+class SJF:
+    def __init__(self, procesos):
+        """
+        Inicializa el planificador SJF con una lista de objetos de tipo Proceso.
+        :param procesos: Lista de objetos Proceso
+        """
+        self.procesos = procesos
 
-    def agregar_proceso(self, proceso):
-        """Añade un proceso a la lista."""
-        self.procesos.append(proceso)
-        self.procesos.sort(key=lambda p: p.tiempo_llegada)  # Ordenar por tiempo de llegada
+    def ejecutar(self):
+        """
+        Ejecuta la planificación de los procesos usando el algoritmo SJF (Shortest Job First).
+        """
+        tiempo_actual = 0
+        finalizado = 0
+        n = len(self.procesos)
 
-    def seleccionar_proceso_mas_corto(self):
-        """Selecciona el proceso con menor tiempo de ejecución disponible."""
-        procesos_disponibles = [
-            p for p in self.procesos if p.tiempo_llegada <= self.tiempo_actual and p.tiempo_restante > 0
-        ]
-        if procesos_disponibles:
-            return min(procesos_disponibles, key=lambda p: p.tiempo_ejecucion)
-        return None
+        while finalizado < n:
+            proceso_elegido = None
+            menor_burst = float('inf')
 
-    def avanzar_tiempo(self):
-        """Avanza un paso en el tiempo simulando la ejecución."""
-        if self.proceso_actual is None:
-            self.proceso_actual = self.seleccionar_proceso_mas_corto()
-            if not self.proceso_actual:
-                self.tiempo_actual += 1
-                return
+            # Encontrar el proceso con el menor tiempo de ráfaga que ya haya llegado
+            for proceso in self.procesos:
+                if proceso.arrival <= tiempo_actual and proceso.burst_tmp < menor_burst and proceso.ending == 0:
+                    menor_burst = proceso.burst_tmp
+                    proceso_elegido = proceso
 
-        # Reducir tiempo restante del proceso actual
-        self.proceso_actual.tiempo_restante -= 1
-        if self.proceso_actual.tiempo_restante == 0:
-            self.proceso_actual.tiempo_retorno = self.tiempo_actual - self.proceso_actual.tiempo_llegada + 1
-            self.procesos.remove(self.proceso_actual)
-            self.proceso_actual = None
+            if proceso_elegido:
+                # Ejecutar el proceso seleccionado
+                tiempo_actual += proceso_elegido.burst
+                proceso_elegido.ending = tiempo_actual  # Tiempo de finalización es el tiempo actual
+                proceso_elegido.return_ = proceso_elegido.ending - proceso_elegido.arrival  # Calcular TAT
+                proceso_elegido.wait = proceso_elegido.return_ - proceso_elegido.burst  # Calcular el tiempo de espera
+                finalizado += 1
+            else:
+                # No hay procesos listos, avanzar el tiempo
+                tiempo_actual += 1
 
-        self.tiempo_actual += 1
+    def imprimir_tabla(self):
+        """
+        Imprime la tabla de llegada y ráfaga de los procesos.
+        """
+        print("\nTabla de Procesos:")
+        print("Proceso\tTiempo de Llegada\tTiempo de Servicio")
+        print("-------\t-----------------\t------------------")
+        for proceso in self.procesos:
+            print(f"  {proceso.nombre}\t\t{proceso.arrival}\t\t\t{proceso.burst}")
 
-    def obtener_estado_procesos(self):
-        """Devuelve una lista con el estado de todos los procesos."""
-        return [
-            {
-                "id": p.id,
-                "llegada": p.tiempo_llegada,
-                "ejecucion": p.tiempo_ejecucion,
-                "espera": p.tiempo_espera,
-                "retorno": p.tiempo_retorno,
-                "restante": p.tiempo_restante
-            }
-            for p in self.procesos
-        ]
+
+    def imprimir_resultados(self):
+        """
+        Imprime los resultados de los tiempos de espera y retorno de los procesos.
+        """
+        print("\nProceso\tTiempo de Espera\tTiempo de Retorno\tTiempo de finalizacion")
+        print("-------\t-----------------\t------------------")
+        total_espera = 0
+        total_retorno = 0
+        total_finalizacion = 0
+        for proceso in self.procesos:
+            print(f"  {proceso.nombre}\t\t{proceso.wait}\t\t\t{proceso.return_}\t\t\t{proceso.ending}")
+            total_espera += proceso.wait
+            total_retorno += proceso.return_
+            total_finalizacion += proceso.ending
+        print(f"\nTiempo total de espera: {total_espera}")
+        print(f"Tiempo total de retorno: {total_retorno}")
+        print(f"Tiempo promedio de espera: {total_espera / len(self.procesos):.2f}")
+        print(f"Tiempo promedio de retorno: {total_retorno / len(self.procesos):.2f}")
+        print(f"Tiempo promedio de finalización: {total_finalizacion / len(self.procesos):.2f}")
     
 
 class Scheduler:
