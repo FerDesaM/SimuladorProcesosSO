@@ -158,3 +158,42 @@ class RR:
         
         # Cerrar el archivo después de escribir
         log_file.close()
+
+class FCFS:
+    def __init__(self, procesos):
+        """
+        Inicializa el planificador FCFS.
+        :param procesos: Lista de objetos Proceso.
+        """
+        self.procesos = sorted(procesos, key=lambda p: p.arrival)  # Ordenar por tiempo de llegada
+        self.tiempo_actual = 0  # Tiempo de simulación actual
+
+    def ejecutar(self):
+        """
+        Ejecuta el algoritmo FCFS y calcula los tiempos de espera, retorno y finalización.
+        """
+        print("\n--- Ejecución de FCFS ---")
+        for proceso in self.procesos:
+            if self.tiempo_actual < proceso.arrival:
+                self.tiempo_actual = proceso.arrival  # Avanzar el tiempo si no hay procesos listos
+
+            proceso.wait = self.tiempo_actual - proceso.arrival  # Calcular tiempo de espera
+            proceso.ending = self.tiempo_actual + proceso.burst  # Calcular tiempo de finalización
+            proceso.return_ = proceso.ending - proceso.arrival  # Calcular tiempo de retorno
+
+            # Simular la ejecución del proceso
+            print(f"Proceso {proceso.id} ({proceso.nombre}) se ejecuta de {self.tiempo_actual} a {proceso.ending}.")
+            self.tiempo_actual += proceso.burst  # Avanzar el tiempo actual por la ráfaga del proceso
+
+        print("\n--- Resultados de FCFS ---")
+        self.imprimir_resultados()
+
+    def imprimir_resultados(self):
+        """
+        Imprime los resultados de la planificación.
+        """
+        print(f"{'ID':<6}{'Nombre':<10}{'Llegada':<10}{'Ráfaga':<10}{'Espera':<10}{'Retorno':<10}{'Finalización':<15}")
+        print("-" * 70)
+        for proceso in self.procesos:
+            print(f"{proceso.id:<6}{proceso.nombre:<10}{proceso.arrival:<10}{proceso.burst:<10}"
+                  f"{proceso.wait:<10}{proceso.return_:<10}{proceso.ending:<15}")
