@@ -69,8 +69,9 @@ class SJF:
         print(f"Tiempo promedio de finalización: {total_finalizacion / len(self.procesos):.2f}")
     
 
-class Scheduler:
-    def planificar(self, process_list):
+
+class RR:
+    def __init__(self, process_list):
         quantum = 0
         while quantum < 1:
             quantum = int(input('Ingrese el Quantum: '))
@@ -94,6 +95,9 @@ class Scheduler:
         print('💡 Se activa el algoritmo Round Robin (turno rotatorio) 😁')
         print()
 
+        # Abrir archivo para registrar tiempos de ejecución
+        log_file = open("execution_log.txt", "w")
+        
         control = True
         while mirror_process > 0:
             print(f' *************************** Tiempo: {time} ************************')
@@ -112,9 +116,11 @@ class Scheduler:
                         if currently_execution_proccess.burst_tmp >= quantum:
                             currently_execution_proccess.burst_tmp -= quantum
                             print(f'💡 Se resta {quantum} a la ráfaga del proceso {currently_execution_proccess.id}')
+                            log_file.write(f"Tiempo {time}, Proceso {currently_execution_proccess.id}\n")  # Registro
                             time += quantum
                             print(f'💡 Se aumenta {quantum} al tiempo')
                         else:
+                            log_file.write(f"Tiempo {time}, Proceso {currently_execution_proccess.id}\n")  # Registro
                             time += currently_execution_proccess.burst_tmp
                             print(f'💡 Se aumenta {currently_execution_proccess.burst_tmp} al tiempo')
                             print(f'💡 Se resta {currently_execution_proccess.burst_tmp} a la ráfaga del proceso {currently_execution_proccess.id}')
@@ -149,3 +155,6 @@ class Scheduler:
             print(f'Promedio de retorno: {total_return / len(process_list)}')
             print(f'Promedio de espera: {total_wait / len(process_list)}')
             print()
+        
+        # Cerrar el archivo después de escribir
+        log_file.close()

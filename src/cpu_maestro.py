@@ -1,6 +1,5 @@
 from cpu import CPU  # Importa la clase CPU desde cpu.py
 from proceso import Proceso  # Importa la clase Proceso desde proceso.py
-from scheduler import Scheduler  # Importa correctamente la clase Scheduler
 import random
 
 class CpuMaestro:
@@ -82,11 +81,10 @@ class CpuMaestro:
 
 
 
-    def ejecutar_planificacion(self):
+    def ejecutar_planificacion_RR(self):
         """Método para ejecutar la planificación de los procesos en todos los CPUs."""
-        scheduler = Scheduler()  # Creamos una instancia del planificador
         for cpu in self.cpus:
             print(f"Ejecutando planificación en la CPU {cpu.id_cpu}")
             # Pasamos la lista de procesos de la CPU al planificador sin necesidad de modificar la firma de la función
-            scheduler.planificar(cpu.procesos)  # Aquí pasamos los procesos de cada CPU
+            cpu.planificar()
 
