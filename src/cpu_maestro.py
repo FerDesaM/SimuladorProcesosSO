@@ -17,6 +17,25 @@ class CpuMaestro:
                 # Agregar estos procesos también a self.procesos
                 self.procesos.append(proceso)
 
+    def generar_proceso(self):
+        """
+        Función para generar un proceso sin parámetros.
+        Los valores de prioridad y tiempo de ejecución se generan aleatoriamente.
+
+        :return: Un objeto de tipo Proceso.
+        """
+        nombre_proceso = f"Proceso_{len(self.procesos)}"  # Nombre único basado en la cantidad de procesos
+        prioridad = random.randint(0, 5)  # Prioridad aleatoria entre 0 y 5
+        tiempo_ejecucion = random.randint(1, 6)  # Tiempo de ejecución aleatorio entre 1 y 6
+
+        # Crear un nuevo proceso con los valores generados
+        proceso = Proceso.crear(nombre_proceso, prioridad, tiempo_ejecucion)
+
+        # Agregar el nuevo proceso al listado de procesos
+        self.procesos.append(proceso)
+
+        return proceso  # Retornar el nuevo proceso creado
+
     def despachador(self):
         """Método para asignar los procesos a las CPUs según el número de procesos que tienen asignados."""
         while self.procesos:
